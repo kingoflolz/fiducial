@@ -1,0 +1,31 @@
+[package]
+name = "topotag"
+version = "0.1.0"
+authors = ["Ben Wang <wangben3@gmail.com>"]
+edition = "2018"
+
+[profile.release]
+debug = true
+
+[dev-dependencies]
+quickcheck = "0.9"
+quickcheck_macros = "0.9"
+piston_window = "0.89.0"
+piston-texture = "0.6.0"
+
+[dependencies]
+camera_capture = {git = "https://github.com/oli-obk/camera_capture.git"}
+image = "0.21.0"
+imageproc = "0.18.0"
+euclid = "0.20.10"
+lazy_static = "1.4.0"
+rusttype = "0.8.2"
+approx = "0.3.2"
+arrsac = "0.3.0"
+rand = { version = "0.7.3", features = ["small_rng"] }
+itertools = "0.9.0"
+arraymap = "0.1.1"
+cv-pinhole = "0.1.1"
+cv-core = "0.10.0"
+lambda-twist = "0.2.0"
+nalgebra = "0.21.0"
