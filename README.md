@@ -1,4 +1,4 @@
-#Topotag
+# Topotag
 
 Implementation of the [Topotag](https://arxiv.org/abs/1908.01450) algorithm in rust.
 
