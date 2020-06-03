@@ -130,6 +130,9 @@ name = "cc"
 version = "1.0.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d87b23d6a92cd03af510a5ade527033f6aa6fa92161e2d5863a907d4c5e31d"
+dependencies = [
+ "jobserver",
+]
 
 [[package]]
 name = "cfg-if"
@@ -431,6 +434,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "fiducial"
+version = "0.1.0"
+dependencies = [
+ "approx",
+ "arraymap",
+ "arrsac",
+ "camera_capture",
+ "cv-core",
+ "cv-pinhole",
+ "euclid",
+ "image",
+ "imageproc",
+ "itertools 0.9.0",
+ "lambda-twist",
+ "lazy_static",
+ "nalgebra",
+ "opencv",
+ "piston-texture",
+ "piston_window",
+ "quickcheck",
+ "quickcheck_macros",
+ "rand 0.7.3",
+ "rayon",
+ "rusttype 0.8.3",
+]
+
+[[package]]
 name = "float-ord"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -589,6 +619,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "glob"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
+
+[[package]]
 name = "glutin"
 version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -690,6 +726,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "284f18f85651fe11e8a991b2adb42cb078325c996ed026d994719efcfca1d54b"
 dependencies = [
  "either",
+]
+
+[[package]]
+name = "jobserver"
+version = "0.1.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c71313ebb9439f74b00d9d2dcec36440beaf57a6aa0623068441dd7cd81a7f2"
+dependencies = [
+ "libc",
 ]
 
 [[package]]
@@ -982,6 +1027,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "915b1b472bc21c53464d6c8461c9d3af805ba1ef837e1cac254428f4a77177b1"
 dependencies = [
  "malloc_buf",
+]
+
+[[package]]
+name = "once_cell"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0b631f7e854af39a1739f401cf34a8a013dfe09eac4fa4dba91e9768bd28168d"
+
+[[package]]
+name = "opencv"
+version = "0.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9696f5d71e49a4e25f2f3d0c1f721a950ce60abbf863f894d55a0570cf3be26d"
+dependencies = [
+ "cc",
+ "glob",
+ "libc",
+ "num",
+ "once_cell",
+ "pkg-config",
+ "rayon",
+ "semver",
+ "shlex",
+ "slab",
+ "vcpkg",
 ]
 
 [[package]]
@@ -1646,6 +1716,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "shlex"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
+
+[[package]]
 name = "simba"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1656,6 +1732,12 @@ dependencies = [
  "num-traits",
  "paste",
 ]
+
+[[package]]
+name = "slab"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 
 [[package]]
 name = "smallvec"
@@ -1748,31 +1830,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "topotag"
-version = "0.1.0"
-dependencies = [
- "approx",
- "arraymap",
- "arrsac",
- "camera_capture",
- "cv-core",
- "cv-pinhole",
- "euclid",
- "image",
- "imageproc",
- "itertools 0.9.0",
- "lambda-twist",
- "lazy_static",
- "nalgebra",
- "piston-texture",
- "piston_window",
- "quickcheck",
- "quickcheck_macros",
- "rand 0.7.3",
- "rusttype 0.8.3",
-]
-
-[[package]]
 name = "typenum"
 version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1789,6 +1846,12 @@ name = "unicode-xid"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "826e7639553986605ec5979c7dd957c7895e93eabed50ab2ffa7f6128a75097c"
+
+[[package]]
+name = "vcpkg"
+version = "0.2.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3fc439f2794e98976c88a2a2dafce96b930fe8010b0a256b3c2199a773933168"
 
 [[package]]
 name = "vecmath"

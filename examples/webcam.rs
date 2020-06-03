@@ -6,20 +6,23 @@ use piston_window::{clear, PistonWindow, Texture, TextureSettings, WindowSetting
 use nalgebra::{Vector2, Point2};
 use cv_pinhole::CameraIntrinsics;
 
-extern crate topotag;
-use topotag::debug::find_tags_debug;
+extern crate fiducial;
+use fiducial::debug::find_lftags_debug;
 
 fn main() {
-    let mut window: PistonWindow = WindowSettings::new("topotagtest", [640, 480])
+    let horiz_res = 640;
+    let vert_res = 480;
+
+    let mut window: PistonWindow = WindowSettings::new("fiducialtest", [horiz_res, vert_res])
         .exit_on_esc(true)
         .build()
         .unwrap();
     let mut tex: Option<Texture<_>> = None;
     let (sender, receiver) = std::sync::mpsc::channel();
     let imgthread = std::thread::spawn(move || {
-        let res1 = camera_capture::create(0);
+        let res1 = camera_capture::create(0).unwrap().resolution(horiz_res, vert_res);
         if let Err(e) = res1 {
-            eprintln!("could not open camera: {}", e);
+            eprintln!("could not open camera: {:?}", e);
             std::process::exit(1);
         }
         let res2 = res1.unwrap().fps(30.0).unwrap().start();
@@ -32,14 +35,12 @@ fn main() {
         // [[712.44128286   0.         316.80287675]
         //  [  0.         711.06570126 228.46397532]
         //  [  0.           0.           1.        ]]
-
-
         for frame in cam {
-            if sender.send(find_tags_debug(frame.convert(), CameraIntrinsics {
+            if sender.send(find_lftags_debug(&frame.convert(), CameraIntrinsics {
                 focals: Vector2::new(712.44128286, 711.06570126),
                 principal_point: Point2::new(316.80287675, 228.46397532),
                 skew: 0.0
-            }).convert()).is_err() {
+            }).unwrap().convert()).is_err() {
                 break;
             }
         }

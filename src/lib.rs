@@ -14,7 +14,8 @@ extern crate quickcheck;
 #[cfg(test)]
 extern crate test;
 
-use image::{ImageBuffer, Luma};
+use image::{ImageBuffer, Luma, FilterType};
+use image::imageops::resize;
 
 pub mod decode;
 pub mod localize;
@@ -34,27 +35,29 @@ fn add_border(input: &mut ImageBuffer<Luma<u8>, Vec<u8>>) {
     }
 }
 
-fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> ImageBuffer<Luma<u8>, Vec<u8>> {
+fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> Option<ImageBuffer<Luma<u8>, Vec<u8>>> {
     let dim = input.dimensions();
+    let threshold_map_res_div: u32 = 16;
 
-    let threshold_map_res_div: u32 = 32;
+    if dim.0 % threshold_map_res_div != 0 {
+        return None
+    }
+    if dim.1 % threshold_map_res_div != 0 {
+        return None
+    }
+
     assert_eq!(dim.0 % threshold_map_res_div, 0);
     assert_eq!(dim.1 % threshold_map_res_div, 0);
-
     let thresold_map_dim = (
         (dim.0 / threshold_map_res_div) as usize,
         (dim.1 / threshold_map_res_div) as usize,
     );
-
     let mut threshold_map: Vec<Vec<u32>> = vec![vec![0; thresold_map_dim.0]; thresold_map_dim.1];
-
     for i in input.enumerate_pixels() {
         threshold_map[(i.1 / threshold_map_res_div) as usize]
             [(i.0 / threshold_map_res_div) as usize] += i.2.data[0] as u32;
     }
-
     let mut output = ImageBuffer::new(dim.0, dim.1);
-
     for i in input.enumerate_pixels() {
         output.put_pixel(
             i.0,
@@ -85,13 +88,10 @@ fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> ImageBuffer<Luma<
                             [(i.0 / threshold_map_res_div) as usize + 1])
                             / (threshold_map_res_div * threshold_map_res_div))
                             as u32;
-
                         let x = i.0 % threshold_map_res_div;
                         let y = i.1 % threshold_map_res_div;
-
                         let p5 = p3 * x + p1 * (threshold_map_res_div - x);
                         let p6 = p4 * x + p2 * (threshold_map_res_div - x);
-
                         ((p6 * y + p5 * (threshold_map_res_div - y))
                             / (threshold_map_res_div * threshold_map_res_div))
                             as u8
@@ -101,6 +101,9 @@ fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> ImageBuffer<Luma<
         );
     }
 
-    output
+    //let downscaled = resize(input, thresold_map_dim.0 as u32, thresold_map_dim.1 as u32, FilterType::Triangle);
+    //let output = resize(&downscaled, dim.0, dim.1, FilterType::Triangle);
+
+    Some(output)
 }
 

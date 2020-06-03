@@ -56,6 +56,13 @@ impl FeatureVector {
         (self.fom[0] / self.zom, self.fom[1] / self.zom)
     }
 
+    pub(crate) fn add_pixel_no_area(&mut self, x: u32, y: u32, value: u32, color: bool) {
+        let actual_value = if color { value } else { 255 - value };
+        self.fom[0] += (x * actual_value) as f32;
+        self.fom[1] += (y * actual_value) as f32;
+        self.zom += actual_value as f32;
+    }
+
     fn add_pixel(&mut self, x: u32, y: u32, value: u32, color: bool) {
         let actual_value = if color { value } else { 255 - value };
 
@@ -369,6 +376,9 @@ pub fn to_topo(
                     final_output.push((*top_component).clone());
 
                     let current_component = &mut active_components[current_label.label as usize];
+                    current_component.zom += final_output.last().unwrap().zom;
+                    current_component.fom[0] += final_output.last().unwrap().fom[0];
+                    current_component.fom[1] += final_output.last().unwrap().fom[1];
 
                     assert!(current_component.valid);
 
