@@ -1,4 +1,4 @@
-# TopoTag
+# Visual Fiducial Implementations (LFTag and TopoTag)
 
 Implementation of two visual fiducial algorithms [LFTag](https://arxiv.org/abs/2006.00842) and [Topotag](https://arxiv.org/abs/1908.01450) algorithm in rust.
 
