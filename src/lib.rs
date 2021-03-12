@@ -1,4 +1,3 @@
-#![feature(test)]
 
 extern crate euclid;
 extern crate image;
@@ -11,8 +10,6 @@ extern crate nalgebra;
 extern crate quickcheck_macros;
 #[cfg(test)]
 extern crate quickcheck;
-#[cfg(test)]
-extern crate test;
 
 use image::{ImageBuffer, Luma, FilterType};
 use image::imageops::resize;
@@ -25,13 +22,13 @@ pub mod debug;
 fn add_border(input: &mut ImageBuffer<Luma<u8>, Vec<u8>>) {
     let (x, y) = input.dimensions();
     for i in 0..x {
-        input.put_pixel(i, 0, Luma { data: [0] });
-        input.put_pixel(i, y - 1, Luma { data: [0] });
+        input.put_pixel(i, 0, Luma([0]));
+        input.put_pixel(i, y - 1, Luma([0]));
     }
 
     for i in 0..y {
-        input.put_pixel(0, i, Luma { data: [0] });
-        input.put_pixel(x - 1, i, Luma { data: [0] });
+        input.put_pixel(0, i, Luma([0]));
+        input.put_pixel(x - 1, i, Luma([0]));
     }
 }
 
@@ -55,15 +52,14 @@ fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> Option<ImageBuffe
     let mut threshold_map: Vec<Vec<u32>> = vec![vec![0; thresold_map_dim.0]; thresold_map_dim.1];
     for i in input.enumerate_pixels() {
         threshold_map[(i.1 / threshold_map_res_div) as usize]
-            [(i.0 / threshold_map_res_div) as usize] += i.2.data[0] as u32;
+            [(i.0 / threshold_map_res_div) as usize] += i.2[0] as u32;
     }
     let mut output = ImageBuffer::new(dim.0, dim.1);
     for i in input.enumerate_pixels() {
         output.put_pixel(
             i.0,
             i.1,
-            Luma {
-                data: [{
+            Luma([{
                     if i.0 >= (dim.0 - threshold_map_res_div)
                         || i.1 >= (dim.1 - threshold_map_res_div)
                     {
@@ -96,8 +92,7 @@ fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> Option<ImageBuffe
                             / (threshold_map_res_div * threshold_map_res_div))
                             as u8
                     }
-                }],
-            },
+                }]),
         );
     }
 

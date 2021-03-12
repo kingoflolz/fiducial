@@ -49,21 +49,19 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
     let hard_thresh = 50; // handles saturation better
 
     for i in input.enumerate_pixels() {
-        let thresh = threshold_map.get_pixel(i.0, i.1).data[0];
+        let thresh = threshold_map.get_pixel(i.0, i.1)[0];
         output.put_pixel(
             i.0,
             i.1,
-            Luma {
-                data: [{
-                    if (i.2.data[0] > thresh || i.2.data[0] > (255 - hard_thresh))
-                        && (i.2.data[0] > hard_thresh)
+            Luma ([{
+                    if (i.2[0] > thresh || i.2[0] > (255 - hard_thresh))
+                        && (i.2[0] > hard_thresh)
                     {
                         255
                     } else {
                         0
                     }
-                }],
-            },
+                }]),
         )
     }
     add_border(&mut output);
@@ -101,9 +99,7 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
 
                 draw_text_mut(
                     &mut output,
-                    Rgba {
-                        data: [255, 0, 0, 255],
-                    },
+                    Rgba([255, 0, 0, 255]),
                     k[0].0,
                     k[0].1,
                     scale,
@@ -114,9 +110,7 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
                 for (idx, i) in decoded.node_pos.iter().enumerate() {
                     draw_text_mut(
                         &mut output,
-                        Rgba {
-                            data: [255, 0, 0, 255],
-                        },
+                        Rgba([255, 0, 0, 255]),
                         i.0 as u32,
                         i.1 as u32,
                         scale,
@@ -133,9 +127,7 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
                                     &mut output,
                                     node.get_com(),
                                     5,
-                                    Rgba {
-                                        data: [255, 255, 0, 255],
-                                    },
+                                    Rgba([255, 255, 0, 255]),
                                 );
                             }
                             if bl == idx {
@@ -143,9 +135,7 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
                                     &mut output,
                                     node.get_com(),
                                     5,
-                                    Rgba {
-                                        data: [255, 0, 255, 255],
-                                    },
+                                    Rgba([255, 0, 255, 255]),
                                 );
                             }
                             if *data {
@@ -153,18 +143,14 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
                                     &mut output,
                                     node.get_com(),
                                     10,
-                                    Rgba {
-                                        data: [255, 0, 0, 255],
-                                    },
+                                    Rgba([255, 0, 0, 255]),
                                 );
                             } else {
                                 draw_hollow_circle_mut(
                                     &mut output,
                                     node.get_com(),
                                     10,
-                                    Rgba {
-                                        data: [0, 0, 255, 255],
-                                    },
+                                    Rgba([0, 0, 255, 255]),
                                 );
                             }
                         }
@@ -173,25 +159,19 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
                                 &mut output,
                                 nodes[decoded.top_left].get_com(),
                                 5,
-                                Rgba {
-                                    data: [0, 255, 255, 255],
-                                },
+                                Rgba([0, 255, 255, 255]),
                             );
                             draw_hollow_circle_mut(
                                 &mut output,
                                 nodes[0].get_com(),
                                 10,
-                                Rgba {
-                                    data: [0, 255, 0, 255],
-                                },
+                                Rgba([0, 255, 0, 255]),
                             );
                             draw_hollow_circle_mut(
                                 &mut output,
                                 nodes[1].get_com(),
                                 10,
-                                Rgba {
-                                    data: [0, 255, 0, 255],
-                                },
+                                Rgba([0, 255, 0, 255]),
                             );
                         }
                         _ => {}
@@ -221,8 +201,8 @@ pub fn dilate_fv(bin_input: &ImageBuffer<Luma<u8>, Vec<u8>>, input: &ImageBuffer
 
     let roi = bin_input.view(x, y, width, height).to_image();
     let roi_grey = input.view(x, y, width, height);
-    let mut connected = connected_components(&roi, Connectivity::Four, Luma{data: [255]});
-    let connected_id = connected.get_pixel(fv.max_x - x, fv.bounding_box[1].1 - y).data[0];
+    let mut connected = connected_components(&roi, Connectivity::Four, Luma([255]));
+    let connected_id = connected.get_pixel(fv.max_x - x, fv.bounding_box[1].1 - y)[0];
 
     let mut v = Vec::new();
 
@@ -238,9 +218,9 @@ pub fn dilate_fv(bin_input: &ImageBuffer<Luma<u8>, Vec<u8>>, input: &ImageBuffer
     let dialated = dilate(&bin_connected, Norm::LInf, 1);
 
     dialated.enumerate_pixels().map(|(x_r, y_r, p)| {
-        if p.data[0] != 0 {
-            if connected.get_pixel(x_r, y_r).data[0] == 0 {
-                fv.add_pixel_no_area(x + x_r, y + y_r, roi_grey.get_pixel(x_r, y_r).data[0] as u32, fv.color)
+        if p[0] != 0 {
+            if connected.get_pixel(x_r, y_r)[0] == 0 {
+                fv.add_pixel_no_area(x + x_r, y + y_r, roi_grey.get_pixel(x_r, y_r)[0] as u32, fv.color)
             }
         }
     }).last();
@@ -259,20 +239,18 @@ pub fn find_lftags_debug(input_color: &ImageBuffer<Rgb<u8>, Vec<u8>>, camera: Ca
     let mut output = ImageBuffer::new(dim.0, dim.1);
     let hard_thresh = 10; // handles saturation better
     for i in input.enumerate_pixels() {
-        let thresh = threshold_map.get_pixel(i.0, i.1).data[0];
+        let thresh = threshold_map.get_pixel(i.0, i.1)[0];
         output.put_pixel(
             i.0,
             i.1,
-            Luma {
-                data: [{
-                    if (i.2.data[0] as u32 > thresh as u32 || i.2.data[0] > (255 - hard_thresh))
-                        && (i.2.data[0] > hard_thresh)                    {
+            Luma([{
+                    if (i.2[0] as u32 > thresh as u32 || i.2[0] > (255 - hard_thresh))
+                        && (i.2[0] > hard_thresh) {
                         255
                     } else {
                         0
                     }
-                }],
-            },
+                }]),
         )
     }
 
@@ -346,15 +324,11 @@ pub fn find_lftags_debug(input_color: &ImageBuffer<Rgb<u8>, Vec<u8>>, camera: Ca
                 draw_line_segment_mut(&mut output,
                                       vert_start,
                                       vert_end,
-                                      Rgba {
-                                          data: [255, 0, 0, 255],
-                                      });
+                                      Rgba([255, 0, 0, 255]));
                 draw_line_segment_mut(&mut output,
                                       horiz_start,
                                       horiz_end,
-                                      Rgba {
-                                          data: [255, 0, 0, 255],
-                                      });
+                                      Rgba([255, 0, 0, 255]));
             }
 
             for (idx, i) in decoded.expected_node_pos.iter().enumerate() {
@@ -378,22 +352,16 @@ pub fn find_lftags_debug(input_color: &ImageBuffer<Rgb<u8>, Vec<u8>>, camera: Ca
                 draw_antialiased_line_segment_mut(&mut output,
                                       vert_start,
                                       vert_end,
-                                      Rgba {
-                                          data: [0, 255, 0, 255],
-                                      }, interpolate);
+                                      Rgba([0, 255, 0, 255]), interpolate);
                 draw_antialiased_line_segment_mut(&mut output,
                                       horiz_start,
                                       horiz_end,
-                                      Rgba {
-                                          data: [0, 255, 0, 255],
-                                      }, interpolate);
+                                      Rgba([0, 255, 0, 255]), interpolate);
             }
-            let ang = decoded.final_pose.0.rotation.euler_angles();
+            let _ang = decoded.final_pose.0.rotation.euler_angles();
             draw_text_mut(
                 &mut output,
-                Rgba {
-                    data: [255, 0, 0, 255],
-                },
+                Rgba([255, 0, 0, 255]),
                 k[1].0 as u32,
                 k[1].1 as u32,
                 scale,
@@ -407,9 +375,7 @@ pub fn find_lftags_debug(input_color: &ImageBuffer<Rgb<u8>, Vec<u8>>, camera: Ca
     }
     draw_text_mut(
         &mut output,
-        Rgba {
-            data: [255, 0, 0, 255],
-        },
+        Rgba([255, 0, 0, 255]),
         0,
         0,
         scale,

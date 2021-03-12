@@ -457,9 +457,9 @@ impl DecodedLFTag {
                 let grad_sum = RefCell::new(0.0f32);
                 let weight_total = RefCell::new(0.0f32);
                 let sum_grad = |a: Luma<u16>, b: Luma<u16>, w| {
-                    assert_eq!(a.data[0], 0);
+                    assert_eq!(a[0], 0);
                     weight_total.replace_with(|o| *o + w);
-                    grad_sum.replace_with(|o| *o + b.data[0] as f32 * w);
+                    grad_sum.replace_with(|o| *o + b[0] as f32 * w);
                     b
                 };
 
@@ -470,18 +470,10 @@ impl DecodedLFTag {
                 let x = world_to_camera_i32(&camera, &initial_pose, &WorldPoint(Point3::new(2.0, inner_edge, 0.0)));
                 let y = world_to_camera_i32(&camera, &initial_pose, &WorldPoint(Point3::new(inner_edge, 2.0, 0.0)));
                 let xy = world_to_camera_i32(&camera, &initial_pose, &WorldPoint(Point3::new(inner_edge, inner_edge, 0.0)));
-                draw_antialiased_line_segment_mut(gradient, orig, x, Luma {
-                    data: [0],
-                }, sum_grad);
-                draw_antialiased_line_segment_mut(gradient, xy, x, Luma {
-                    data: [0],
-                }, sum_grad);
-                draw_antialiased_line_segment_mut(gradient, orig, y, Luma {
-                    data: [0],
-                }, sum_grad);
-                draw_antialiased_line_segment_mut(gradient, xy, y, Luma {
-                    data: [0],
-                }, sum_grad);
+                draw_antialiased_line_segment_mut(gradient, orig, x, Luma([0]), sum_grad);
+                draw_antialiased_line_segment_mut(gradient, xy, x, Luma([0]), sum_grad);
+                draw_antialiased_line_segment_mut(gradient, orig, y, Luma([0]), sum_grad);
+                draw_antialiased_line_segment_mut(gradient, xy, y, Luma([0]), sum_grad);
 
                 let mean_grad = *grad_sum.borrow() / *weight_total.borrow();
                 total_bit_dist /= mean_grad;
