@@ -190,14 +190,15 @@ pub fn find_topotags_debug(input: ImageBuffer<Rgb<u8>, Vec<u8>>, camera: CameraI
 
 pub fn dilate_fv(bin_input: &ImageBuffer<Luma<u8>, Vec<u8>>, input: &ImageBuffer<Luma<u8>, Vec<u8>>, fv: &mut FeatureVector) {
     let buffer = 3;
+    if fv.bounding_box[0].0 <= buffer || fv.bounding_box[0].1 <= buffer || fv.bounding_box[1].0 + buffer * 2 >= bin_input.width() || fv.bounding_box[1].1 + buffer * 2 >= bin_input.height() {
+        return
+    }
+
     let x = fv.bounding_box[0].0 - buffer;
     let y = fv.bounding_box[0].1 - buffer;
     let width = fv.bounding_box[1].0 - x + buffer * 2;
     let height = fv.bounding_box[1].1 - y + buffer * 2;
 
-    if fv.bounding_box[0].0 <= buffer || fv.bounding_box[0].1 <= buffer || fv.bounding_box[1].0 + buffer * 2 >= bin_input.width() || fv.bounding_box[1].1 + buffer * 2 >= bin_input.height() {
-        return
-    }
 
     let roi = bin_input.view(x, y, width, height).to_image();
     let roi_grey = input.view(x, y, width, height);
