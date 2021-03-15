@@ -199,7 +199,6 @@ pub fn dilate_fv(bin_input: &ImageBuffer<Luma<u8>, Vec<u8>>, input: &ImageBuffer
     let width = fv.bounding_box[1].0 - x + buffer * 2;
     let height = fv.bounding_box[1].1 - y + buffer * 2;
 
-
     let roi = bin_input.view(x, y, width, height).to_image();
     let roi_grey = input.view(x, y, width, height);
     let mut connected = connected_components(&roi, Connectivity::Four, Luma([255]));

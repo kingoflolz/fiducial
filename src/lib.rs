@@ -34,7 +34,7 @@ fn add_border(input: &mut ImageBuffer<Luma<u8>, Vec<u8>>) {
 
 fn create_threshold(input: &ImageBuffer<Luma<u8>, Vec<u8>>) -> Option<ImageBuffer<Luma<u8>, Vec<u8>>> {
     let dim = input.dimensions();
-    let threshold_map_res_div: u32 = 16;
+    let threshold_map_res_div: u32 = 8;
 
     if dim.0 % threshold_map_res_div != 0 {
         return None
