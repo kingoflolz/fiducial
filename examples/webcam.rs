@@ -1,67 +1,74 @@
-extern crate piston_window;
-extern crate camera_capture;
+extern crate eye;
+extern crate minifb;
 
-use image::ConvertBuffer;
-use piston_window::{clear, PistonWindow, Texture, TextureSettings, WindowSettings};
+use std::{io, time};
+use image::{ImageBuffer};
 use nalgebra::{Vector2, Point2};
 use cv_pinhole::CameraIntrinsics;
-
+use eye::prelude::*;
 extern crate fiducial;
 use fiducial::debug::find_lftags_debug;
+use minifb::{Window, WindowOptions};
 
-fn main() {
-    let horiz_res = 640;
-    let vert_res = 480;
-
-    let mut window: PistonWindow = WindowSettings::new("fiducialtest", [horiz_res, vert_res])
-        .exit_on_esc(true)
-        .build()
-        .unwrap();
-    let mut tex: Option<Texture<_>> = None;
-    let (sender, receiver) = std::sync::mpsc::channel();
-    let imgthread = std::thread::spawn(move || {
-        let res1 = camera_capture::create(0).unwrap().resolution(horiz_res, vert_res);
-        if let Err(e) = res1 {
-            eprintln!("could not open camera: {:?}", e);
-            std::process::exit(1);
-        }
-        let res2 = res1.unwrap().fps(30.0).unwrap().start();
-        if let Err(e) = res2 {
-            eprintln!("could retrieve data from camera: {}", e);
-            std::process::exit(2);
-        }
-        let cam = res2.unwrap();
-        // camera matrix from camera_cal
-        // [[712.44128286   0.         316.80287675]
-        //  [  0.         711.06570126 228.46397532]
-        //  [  0.           0.           1.        ]]
-        for frame in cam {
-            if sender.send(find_lftags_debug(&frame.convert(), CameraIntrinsics {
-                focals: Vector2::new(712.44128286, 711.06570126),
-                principal_point: Point2::new(316.80287675, 228.46397532),
-                skew: 0.0
-            }).unwrap().convert()).is_err() {
-                break;
-            }
-        }
-    });
-    while let Some(e) = window.next() {
-        if let Ok(frame) = receiver.try_recv() {
-            if let Some(mut t) = tex {
-                t.update(&mut window.encoder, &frame).unwrap();
-                tex = Some(t);
-            } else {
-                tex =
-                    Texture::from_image(&mut window.factory, &frame, &TextureSettings::new()).ok();
-            }
-        }
-        window.draw_2d(&e, |c, g| {
-            clear([1.0; 4], g);
-            if let Some(ref t) = tex {
-                piston_window::image(t, c.transform, g);
-            }
-        });
+fn main() -> io::Result<()> {
+    let devices = Context::enumerate_devices();
+    if devices.is_empty() {
+        std::process::exit(1);
     }
-    drop(receiver);
-    imgthread.join().unwrap();
+    let dev = Device::with_uri(&devices[0]).unwrap();
+    let desc = dev.preferred_stream(&|x, y| {
+        if x.pixfmt == PixelFormat::Rgb(24) && y.pixfmt == PixelFormat::Rgb(24) {
+            if x.interval > time::Duration::from_millis(33) {
+                return y;
+            }
+            if x.width > y.width {
+                x
+            } else {
+                y
+            }
+        } else if x.pixfmt == PixelFormat::Rgb(24) {
+            x
+        } else {
+            y
+        }
+    })?;
+
+    if desc.pixfmt != PixelFormat::Rgb(24) {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "Failed to set RGB format."
+        ));
+    } 
+
+    println!("Stream: {:?}", desc);
+    let mut stream = dev.start_stream(&desc)?;
+
+    let mut window = Window::new(
+        &devices[0],
+        desc.width as usize,
+        desc.height as usize,
+        WindowOptions::default()
+    ).expect("Could not open a window.");
+
+    loop {
+        let frame = stream.next().expect("Stream is dead.")?;
+        
+        let buf = frame.into_bytes().collect();
+        let image : ImageBuffer<image::Rgb<u8>, Vec<u8>> = image::ImageBuffer::from_vec(
+            desc.width, desc.height, buf).unwrap();
+
+        let detected = find_lftags_debug(&image, CameraIntrinsics {
+            focals: Vector2::new(712.44128286, 711.06570126),
+            principal_point: Point2::new(316.80287675, 228.46397532),
+            skew: 0.0
+        }).unwrap();
+
+        let pixels: Vec<u32> = detected.pixels().map(|rgb| {
+            u32::from_be_bytes([0, rgb[0], rgb[1], rgb[2]])
+        }).collect();
+        
+        window.update_with_buffer(
+            &pixels,
+            desc.width as usize, desc.height as usize).unwrap();
+    }
 }

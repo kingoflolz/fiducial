@@ -105,21 +105,11 @@ pub fn draw_coords(input: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, model: &CameraInt
     let y = world_to_camera_i32(model, pose, &WorldPoint(Point3::new(2.0, scale - 2.0, 0.0)));
     let z = world_to_camera_i32(model, pose, &WorldPoint(Point3::new(2.0, 2.0, -scale)));
     let xy = world_to_camera_i32(model, pose, &WorldPoint(Point3::new(scale - 2.0, scale - 2.0, 0.0)));
-    draw_antialiased_line_segment_mut(input, origin, x, Rgba {
-        data: [255, 0, 0, 255],
-    }, interpolate);
-    draw_antialiased_line_segment_mut(input, origin, y, Rgba {
-        data: [0, 255, 0, 255],
-    }, interpolate);
-    draw_antialiased_line_segment_mut(input, xy, x, Rgba {
-        data: [255, 0, 0, 255],
-    }, interpolate);
-    draw_antialiased_line_segment_mut(input, xy, y, Rgba {
-        data: [0, 255, 0, 255],
-    }, interpolate);
-    draw_antialiased_line_segment_mut(input, origin, z, Rgba {
-        data: [0, 0, 255, 255],
-    }, interpolate);
+    draw_antialiased_line_segment_mut(input, origin, x, Rgba([255, 0, 0, 255]), interpolate);
+    draw_antialiased_line_segment_mut(input, origin, y, Rgba([0, 255, 0, 255]), interpolate);
+    draw_antialiased_line_segment_mut(input, xy, x, Rgba([255, 0, 0, 255]), interpolate);
+    draw_antialiased_line_segment_mut(input, xy, y, Rgba([0, 255, 0, 255]), interpolate);
+    draw_antialiased_line_segment_mut(input, origin, z, Rgba([0, 0, 255, 255]), interpolate);
 }
 
 pub fn world_to_camera(model: &CameraIntrinsics, pose: &WorldPose, point: &WorldPoint) -> (f32, f32) {

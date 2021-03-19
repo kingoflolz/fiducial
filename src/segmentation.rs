@@ -156,7 +156,7 @@ fn print_img(input: &ImageBuffer<Luma<u8>, Vec<u8>>) {
     let (x, y) = input.dimensions();
     for j in 0..y {
         for i in 0..x {
-            if input.get_pixel(i, j).data[0] > 0 {
+            if input.get_pixel(i, j)[0] > 0 {
                 print!("X")
             } else {
                 print!(" ")
@@ -214,10 +214,10 @@ pub fn to_topo(
         }
 
         // update neighborhood
-        let current = i.2.data[0] > 0;
-        let value = input_grey.get_pixel(i.0, i.1).data[0];
+        let current = i.2[0] > 0;
+        let value = input_grey.get_pixel(i.0, i.1)[0];
         let top = if i.1 > 0 {
-            input.get_pixel(i.0, i.1 - 1).data[0] > 0
+            input.get_pixel(i.0, i.1 - 1)[0] > 0
         } else {
             false
         };
@@ -225,7 +225,7 @@ pub fn to_topo(
         //let top_label_raw = prev_row_label[i.0 as usize];
 
         let left = if i.0 > 0 {
-            input.get_pixel(i.0 - 1, i.1).data[0] > 0
+            input.get_pixel(i.0 - 1, i.1)[0] > 0
         } else {
             false
         };
@@ -465,9 +465,7 @@ mod tests {
                     image.put_pixel(
                         i + 1,
                         j + 1,
-                        Luma {
-                            data: [if input[idx] { 255 } else { 0 }],
-                        },
+                        Luma([if input[idx] { 255 } else { 0 }]),
                     );
                     idx += 1;
                 }
@@ -489,28 +487,28 @@ mod tests {
         return area == img_size * img_size;
     }
 
-    use rand::prelude::*;
-    use test::Bencher;
+    // use rand::prelude::*;
+    // use test::Bencher;
 
-    #[bench]
-    fn bench_topo(b: &mut Bencher) {
-        let width = 1280;
-        let height = 960;
+    // #[bench]
+    // fn bench_topo(b: &mut Bencher) {
+    //     let width = 1280;
+    //     let height = 960;
 
-        let mut rng = thread_rng();
+    //     let mut rng = thread_rng();
 
-        let mut flat_array = Vec::new();
-        for _ in 0..width * height {
-            if rng.gen::<f32>() > 0.9f32 {
-                flat_array.push(0);
-            } else {
-                flat_array.push(255);
-            }
-        }
-        let mut image =
-            ImageBuffer::<Luma<u8>, Vec<u8>>::from_raw(width, height, flat_array).unwrap();
-        add_border(&mut image);
+    //     let mut flat_array = Vec::new();
+    //     for _ in 0..width * height {
+    //         if rng.gen::<f32>() > 0.9f32 {
+    //             flat_array.push(0);
+    //         } else {
+    //             flat_array.push(255);
+    //         }
+    //     }
+    //     let mut image =
+    //         ImageBuffer::<Luma<u8>, Vec<u8>>::from_raw(width, height, flat_array).unwrap();
+    //     add_border(&mut image);
 
-        b.iter(|| to_topo(&image, &image));
-    }
+    //     b.iter(|| to_topo(&image, &image));
+    // }
 }
